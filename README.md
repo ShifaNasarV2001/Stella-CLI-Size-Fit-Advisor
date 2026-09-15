@@ -85,6 +85,15 @@ python run.py
 
 Requires Python 3.11+. Run the tests with `pytest` (they need no API key).
 
+**Streamlit UI (secondary front end).** `python run.py` (the CLI) is the
+primary, required entrypoint. `streamlit run app.py` gives the same engine a
+browser front end — same `Conversation`, same `SessionState`, same
+`confidence.py`, imported unchanged from `stella/`. `app.py` contains no
+conversation or scoring logic of its own, only rendering, so the two front
+ends can never disagree about a score. The sidebar mirrors `/state` and
+`/score`; the model picker covers the same OpenRouter slugs as
+`STELLA_MODEL`, including the free-tier models.
+
 **Transport note:** Stella talks to Claude through
 [OpenRouter](https://openrouter.ai/keys)'s OpenAI-compatible endpoint rather
 than the Anthropic API directly — the environment this was built in had an
