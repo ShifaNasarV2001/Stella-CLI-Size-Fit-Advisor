@@ -160,7 +160,8 @@ def _inject_style() -> None:
         .stella-slot-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.82rem;
+            table-layout: fixed;
+            font-size: 0.75rem;
             margin-top: 0.4rem;
         }
         .stella-slot-table th {
@@ -168,22 +169,28 @@ def _inject_style() -> None:
             font-weight: 600;
             color: #6B6259;
             border-bottom: 1px solid #E4D9C9;
-            padding: 0.3rem 0.25rem;
+            padding: 0.3rem 0.15rem;
         }
+        .stella-slot-table th:nth-child(1) { width: 40%; }
+        .stella-slot-table th:nth-child(2) { width: 15%; text-align: right; }
+        .stella-slot-table th:nth-child(3) { width: 27%; }
+        .stella-slot-table th:nth-child(4) { width: 18%; text-align: right; }
         .stella-slot-table td {
-            padding: 0.35rem 0.25rem;
+            padding: 0.35rem 0.15rem;
             border-bottom: 1px solid #F1E9DF;
             color: #2A241F;
+            word-break: break-word;
+            vertical-align: top;
         }
         .stella-slot-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
         .stella-badge {
             display: inline-block;
-            font-size: 0.68rem;
-            padding: 0.05rem 0.4rem;
+            font-size: 0.62rem;
+            padding: 0.02rem 0.3rem;
             border-radius: 999px;
             background: #F1E9DF;
             color: #9C4A3B;
-            margin-left: 0.3rem;
+            margin-left: 0.2rem;
         }
 
         .stella-note {
@@ -263,19 +270,33 @@ def _inject_style() -> None:
     )
 
 
+def _compact(markup: str) -> str:
+    """Collapse HTML markup to a single line before handing it to st.markdown.
+
+    st.markdown parses its input as Markdown first, and Markdown treats any
+    line indented four or more spaces as a code block. Interpolating an
+    already-indented fragment (like generated table rows) into an indented
+    template leaves exactly that, so the HTML renders as literal text instead
+    of markup. Emitting one line sidesteps the whole class of bug.
+    """
+    return "".join(line.strip() for line in markup.splitlines())
+
+
 def _gauge_color(label: str) -> str:
     return GAUGE_COLORS.get(label, "#9C4A3B")
 
 
 def _render_hero() -> None:
     st.markdown(
-        """
-        <div class="stella-hero">
+        _compact(
+            """
+            <div class="stella-hero">
             <p class="stella-wordmark">Stella</p>
             <p class="stella-tagline">Size &amp; Fit Advisor</p>
-        </div>
-        <hr class="stella-rule" />
-        """,
+            </div>
+            <hr class="stella-rule" />
+            """
+        ),
         unsafe_allow_html=True,
     )
 
@@ -311,31 +332,31 @@ def _render_recommendation(rec: Recommendation) -> None:
     caveats_html = ""
     if rec.caveats:
         items = "".join(f'<div class="stella-caveat">{html.escape(c)}</div>' for c in rec.caveats)
-        caveats_html = f"""
-        <div class="stella-caveats">
-            <div class="stella-caveats-label">Caveats</div>
-            {items}
-        </div>
-        """
+        caveats_html = (
+            '<div class="stella-caveats">'
+            '<div class="stella-caveats-label">Caveats</div>'
+            f"{items}</div>"
+        )
 
     st.markdown(
-        f"""
-        <div class="stella-rec-card">
-            <div class="stella-rec-title">Your Fit</div>
-            <div class="stella-rec-row">
-                <div class="stella-rec-field">
-                    <div class="stella-rec-field-label">Size range</div>
-                    <div class="stella-rec-field-value">{html.escape(rec.size_range)}</div>
-                </div>
-                <div class="stella-rec-field">
-                    <div class="stella-rec-field-label">Silhouette</div>
-                    <div class="stella-rec-field-value">{html.escape(rec.silhouette)}</div>
-                </div>
-            </div>
-            <div class="stella-rec-tip"><strong>Brand tip</strong> — {html.escape(rec.brand_tip)}</div>
-            {caveats_html}
-        </div>
-        """,
+        _compact(
+            '<div class="stella-rec-card">'
+            '<div class="stella-rec-title">Your Fit</div>'
+            '<div class="stella-rec-row">'
+            '<div class="stella-rec-field">'
+            '<div class="stella-rec-field-label">Size range</div>'
+            f'<div class="stella-rec-field-value">{html.escape(rec.size_range)}</div>'
+            "</div>"
+            '<div class="stella-rec-field">'
+            '<div class="stella-rec-field-label">Silhouette</div>'
+            f'<div class="stella-rec-field-value">{html.escape(rec.silhouette)}</div>'
+            "</div>"
+            "</div>"
+            '<div class="stella-rec-tip"><strong>Brand tip</strong> &mdash; '
+            f"{html.escape(rec.brand_tip)}</div>"
+            f"{caveats_html}"
+            "</div>"
+        ),
         unsafe_allow_html=True,
     )
 
@@ -356,47 +377,49 @@ def _render_sidebar(conversation: Conversation) -> None:
     if len(state.confidence_history) >= 2:
         change = state.confidence_history[-1] - state.confidence_history[-2]
         if change:
-            arrow = "▲" if change > 0 else "▼"
+            arrow = "&#9650;" if change > 0 else "&#9660;"
             delta_html = f'<div class="stella-gauge-delta">{arrow} {change:+.1f} this turn</div>'
 
     with st.sidebar:
         st.markdown(
-            f"""
-            <div class="stella-gauge-wrap">
-                <span class="stella-gauge-label">{html.escape(label)}</span>
-                <span class="stella-gauge-score">{score:.1f} / 100</span>
-                <div class="stella-gauge-track">
-                    <div class="stella-gauge-fill" style="width:{score}%; background:{color};"></div>
-                </div>
-                {delta_html}
-            </div>
-            """,
+            _compact(
+                '<div class="stella-gauge-wrap">'
+                f'<span class="stella-gauge-label">{html.escape(label)}</span>'
+                f'<span class="stella-gauge-score">{score:.1f} / 100</span>'
+                '<div class="stella-gauge-track">'
+                f'<div class="stella-gauge-fill" style="width:{score}%; background:{color};"></div>'
+                "</div>"
+                f"{delta_html}"
+                "</div>"
+            ),
             unsafe_allow_html=True,
         )
 
-        st.caption(f"Guessing < {NARROWING_THRESHOLD:.0f} · Narrowing < {CONFIDENT_THRESHOLD:.0f} · Confident ≥ {CONFIDENT_THRESHOLD:.0f}")
+        st.caption(
+            f"Guessing < {NARROWING_THRESHOLD:.0f} · "
+            f"Narrowing < {CONFIDENT_THRESHOLD:.0f} · "
+            f"Confident ≥ {CONFIDENT_THRESHOLD:.0f}"
+        )
 
         st.markdown("**Where the score comes from**")
         rows = "".join(
-            f"""
-            <tr>
-                <td>{row['slot'].replace('_', ' ')}
-                    {'<span class="stella-badge">ambiguous</span>' if row['ambiguous'] else ''}
-                </td>
-                <td class="num">{row['weight']:.2f}</td>
-                <td>{row['specificity']}</td>
-                <td class="num">{row['points']:.1f}</td>
-            </tr>
-            """
+            "<tr>"
+            f"<td>{html.escape(row['slot'].replace('_', ' '))}"
+            + ('<span class="stella-badge">amb</span>' if row["ambiguous"] else "")
+            + "</td>"
+            f'<td class="num">{row["weight"]:.2f}</td>'
+            f"<td>{html.escape(row['specificity'])}</td>"
+            f'<td class="num">{row["points"]:.1f}</td>'
+            "</tr>"
             for row in detail["slots"]
         )
         st.markdown(
-            f"""
-            <table class="stella-slot-table">
-                <tr><th>Slot</th><th>Weight</th><th>Signal</th><th>Points</th></tr>
-                {rows}
-            </table>
-            """,
+            _compact(
+                '<table class="stella-slot-table">'
+                "<tr><th>Slot</th><th>W</th><th>Signal</th><th>Pts</th></tr>"
+                f"{rows}"
+                "</table>"
+            ),
             unsafe_allow_html=True,
         )
 
