@@ -171,6 +171,7 @@ class Conversation:
             self._api_messages(),
             response_schema=Recommendation,
             call_type="recommend",
+            max_tokens=1500,
         )
         assert isinstance(recommendation, Recommendation)
 
