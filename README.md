@@ -44,8 +44,9 @@ pip install -r requirements.txt
 
 cp .env.example .env               # then add your OPENROUTER_API_KEY
 python run.py
-```
 streamlit run app.py               # for streamlit 
+```
+
 
 Requires Python 3.11+. Run the tests with `pytest` (they need no API key).
 
