@@ -94,7 +94,7 @@ ends can never disagree about a score. The sidebar mirrors `/state` and
 `/score`; the model picker covers the same OpenRouter slugs as
 `STELLA_MODEL`, including the free-tier models.
 
-## Chat Interface
+## Streamlit Interface
 
 ![Chat Interface Preview](stella.png "Chat UI")
 
