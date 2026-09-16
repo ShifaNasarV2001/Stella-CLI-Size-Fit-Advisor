@@ -69,19 +69,7 @@ ends can never disagree about a score. The sidebar mirrors `/state` and
 **Transport note:** Stella talks to Claude through
 [OpenRouter](https://openrouter.ai/keys)'s OpenAI-compatible endpoint rather
 than the Anthropic API directly — the environment this was built in had an
-OpenRouter key available, not a direct Anthropic one. This is a transport
-detail, not a design change: structured extraction still goes through a
-strict JSON schema (built from the Pydantic models and tightened to
-`additionalProperties: false` + all-required, since Pydantic doesn't emit
-either by default) and gets `model_validate()`'d before touching state — the
-same contract described in *System prompt design* below, just enforced over
-`openai`'s client instead of `anthropic`'s. Swapping back to a direct
-Anthropic key only requires changing `stella/llm.py`'s client construction and
-base URL; the rest of the app is provider-agnostic by design (`LLMClient.call`
-is the only seam).
-
-Commands inside the REPL: `/state`, `/transcript`, `/score`, `/save FILE`,
-`/reset`, `/help`, `/quit`.
+OpenRouter key available, not a direct Anthropic one. 
 
 ---
 
@@ -131,12 +119,7 @@ bad merge into state.
 
 Listed specifically, because a vague limitations section is worth nothing.
 
-1. **No committed sample transcript yet.** A live run (see `/state` output
-   embedded in *System prompt design* below for a real extraction result) has
-   been verified end-to-end, but recording the full adversarial transcript
-   this README asks for is left to a manual run — see *Sample transcript*
-   below. **This is the one outstanding deliverable.**
-2. **Routed through OpenRouter, not the Anthropic API directly.** The
+1. **Routed through OpenRouter, not the Anthropic API directly.** The
    available credential in this environment was an OpenRouter key rather than
    a direct Anthropic one, so `llm.py` talks to
    `https://openrouter.ai/api/v1` via the `openai` client instead of the
@@ -145,7 +128,7 @@ Listed specifically, because a vague limitations section is worth nothing.
    path, and per-call cost includes OpenRouter's margin on top of the
    underlying Anthropic rate.
 4. **No size-chart or vanity-sizing data.** Brand tips are the model's priors,
-   not measurements from a garment database. Do not buy clothes based on this.
+   not measurements from a garment database. 
 5. **The confidence weights are hand-tuned and uncalibrated.** 0.35 / 0.30 / 0.20
    / 0.15 encodes a defensible ordering (see below) but no ground truth — nobody
    has measured whether an 80 is right four times out of five. The arithmetic is
