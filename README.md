@@ -94,6 +94,11 @@ ends can never disagree about a score. The sidebar mirrors `/state` and
 `/score`; the model picker covers the same OpenRouter slugs as
 `STELLA_MODEL`, including the free-tier models.
 
+## Chat Interface
+
+![Chat Interface Preview](stella.png "Chat UI")
+
+
 **Transport note:** Stella talks to Claude through
 [OpenRouter](https://openrouter.ai/keys)'s OpenAI-compatible endpoint rather
 than the Anthropic API directly — the environment this was built in had an
