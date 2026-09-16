@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# Stella — CLI Size & Fit Advisor
+Stella — CLI Size & Fit Advisor
 
 ## What works
 
